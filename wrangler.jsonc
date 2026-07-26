@@ -8,7 +8,7 @@
   "vars": {
     "ENVIRONMENT": "production",
     "ALLOWED_ORIGINS": "https://zx-dx.xyz,https://zxlab.pages.dev,https://*.zxlab.pages.dev,http://localhost:4321,http://127.0.0.1:4174",
-    "TURNSTILE_EXPECTED_HOSTNAMES": "zx-dx.xyz,zxlab.pages.dev",
+    "TURNSTILE_EXPECTED_HOSTNAMES": "zx-dx.xyz,zxlab.pages.dev,beta.zxlab.pages.dev",
     "AI_GATEWAY_URL": "https://beta.zxlab.pages.dev/api/ai/generate",
     "SESSION_TTL_SECONDS": "1800"
   },
