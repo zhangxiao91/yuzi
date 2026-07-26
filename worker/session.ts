@@ -82,7 +82,7 @@ export class GameSession implements DurableObject {
 function gameError(error: unknown): Response {
   const code = error instanceof Error ? error.message : "GAME_ERROR";
   const status = code === "VERSION_CONFLICT" ? 409
-    : code.startsWith("AI_GATEWAY_") || code.includes("MODEL") || code.includes("NARRATIVE") || code.includes("CANDIDATE") ? 502
+    : code.startsWith("AI_GATEWAY_") || code.includes("MODEL") || code.includes("NARRATIVE") || code.includes("CANDIDATE") || code === "FORBIDDEN_FRAGMENT_REAPPEARED" ? 502
       : 400;
   console.error(JSON.stringify({ event: "yuzi.session.rejected", code }));
   return problem(code, status);
@@ -100,6 +100,11 @@ function safeMessage(code: string): string {
   if (code.startsWith("AI_GATEWAY_") || code.includes("MODEL")) return "这一轮没有写成，请重试。";
   if (code === "VERSION_CONFLICT") return "手稿已在其他位置更新，请刷新后继续。";
   if (code === "SESSION_EXPIRED") return "这份手稿已经合上，请开始新的一局。";
+  if (code === "TURN_NOT_ALLOWED") return "当前不是构句阶段，请先完成剪取。";
+  if (code === "INVALID_SENTENCE") return "请选择二至五个完整意群。";
+  if (code === "DUPLICATE_FRAGMENT") return "同一个意群不能重复使用。";
+  if (code === "UNKNOWN_FRAGMENT") return "字池已经变化，请刷新手稿后重试。";
+  if (code === "INVALID_PUNCTUATION") return "请选择句号、问号或引号。";
   return "这次操作不符合当前手稿状态。";
 }
 
