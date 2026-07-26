@@ -22,16 +22,23 @@ export default {
       const route = url.pathname.match(SESSION_PATH) ?? url.pathname.match(TURN_PATH) ?? url.pathname.match(CUT_PATH);
       if (!route) return respond({ error: { code: "NOT_FOUND", message: "Route not found." } }, 404, cors);
       const [, sessionId] = route;
-      const stub = env.SESSIONS.getByName(sessionId);
       if (url.pathname.endsWith("/turn")) {
         const allowed = await env.TURN_RATE_LIMITER.limit({ key: `turn:${sessionId}` });
         if (!allowed.success) return respond({ error: { code: "RATE_LIMITED", message: "书写得太快了，请稍后再试。" } }, 429, cors);
       }
       const internalPath = url.pathname.endsWith("/turn") ? "/turn" : url.pathname.endsWith("/cut") ? "/cut" : "/state";
+      let body: string | undefined;
+      if (request.method !== "GET") {
+        const declaredLength = Number(request.headers.get("content-length") ?? 0);
+        if (declaredLength > 4_096) return respond({ error: { code: "PAYLOAD_TOO_LARGE", message: "请求内容过长。" } }, 413, cors);
+        body = await request.text();
+        if (body.length > 4_096) return respond({ error: { code: "PAYLOAD_TOO_LARGE", message: "请求内容过长。" } }, 413, cors);
+      }
+      const stub = env.SESSIONS.getByName(sessionId);
       const response = await stub.fetch(`https://session.internal${internalPath}`, {
         method: request.method,
         headers: { authorization: request.headers.get("authorization") ?? "", "content-type": "application/json" },
-        body: request.method === "GET" ? undefined : request.body,
+        body,
       });
       return withCors(response, cors);
     } catch (error) {

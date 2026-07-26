@@ -47,7 +47,7 @@ export class GameSession implements DurableObject {
 
   private async turn(request: Request, record: SessionRecord): Promise<Response> {
     try {
-      const input = await request.json<TurnInput>();
+      const input = await request.json<TurnInput>().catch(() => { throw new Error("INVALID_INPUT"); });
       const composition = composeTurn(record.game, input);
       const output = await generateTurn(this.env, record.game, composition.sentence, composition.nextForbidden);
       const game = applyModelTurn(record.game, composition, output);
@@ -60,7 +60,7 @@ export class GameSession implements DurableObject {
 
   private async cut(request: Request, record: SessionRecord): Promise<Response> {
     try {
-      const input = await request.json<CutInput>();
+      const input = await request.json<CutInput>().catch(() => { throw new Error("INVALID_INPUT"); });
       const game = cutFragments(record.game, input);
       await this.state.storage.put("session", { ...record, game });
       return json({ game });
@@ -105,6 +105,7 @@ function safeMessage(code: string): string {
   if (code === "DUPLICATE_FRAGMENT") return "同一个意群不能重复使用。";
   if (code === "UNKNOWN_FRAGMENT") return "字池已经变化，请刷新手稿后重试。";
   if (code === "INVALID_PUNCTUATION") return "请选择句号、问号或引号。";
+  if (code === "INVALID_INPUT") return "请求内容无法读取，请重试。";
   return "这次操作不符合当前手稿状态。";
 }
 

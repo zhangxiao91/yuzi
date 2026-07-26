@@ -68,4 +68,33 @@ describe("worker boundary", () => {
     expect(read.status).toBe(200);
     expect(limiter.limit).toHaveBeenCalledTimes(1);
   });
+
+  it("buffers a bounded JSON body before forwarding to the Durable Object", async () => {
+    let forwarded = "";
+    const stub = { fetch: vi.fn(async (request: Request) => {
+      forwarded = await request.text();
+      return Response.json({ game: { id: "id" } });
+    }) };
+    const config = env({ SESSIONS: { getByName: vi.fn(() => stub) } as unknown as DurableObjectNamespace });
+    const body = JSON.stringify({ version: 1, fragmentIds: ["a", "b"], punctuation: "。" });
+    const response = await worker.fetch(new Request("https://api.test/api/v1/sessions/deadbeef/turn", {
+      method: "POST",
+      headers: { origin: "https://zx-dx.xyz", authorization: "Bearer value", "content-type": "application/json" },
+      body,
+    }), config);
+    expect(response.status).toBe(200);
+    expect(forwarded).toBe(body);
+  });
+
+  it("rejects oversized turn bodies before touching session state", async () => {
+    const getByName = vi.fn();
+    const config = env({ SESSIONS: { getByName } as unknown as DurableObjectNamespace });
+    const response = await worker.fetch(new Request("https://api.test/api/v1/sessions/deadbeef/turn", {
+      method: "POST",
+      headers: { origin: "https://zx-dx.xyz", authorization: "Bearer value", "content-type": "application/json" },
+      body: "x".repeat(4_097),
+    }), config);
+    expect(response.status).toBe(413);
+    expect(getByName).not.toHaveBeenCalled();
+  });
 });
