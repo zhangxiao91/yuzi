@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_YUZHI_API_BASE_URL?: string;
+  readonly VITE_YUZI_API_BASE_URL?: string;
   readonly VITE_TURNSTILE_SITE_KEY?: string;
 }
 

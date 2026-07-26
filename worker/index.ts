@@ -14,7 +14,7 @@ export default {
     const url = new URL(request.url);
     const cors = corsHeaders(request, env);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: preflight(cors) });
-    if (request.method === "GET" && url.pathname === "/health") return respond({ ok: true, service: "yuzhi-api" }, 200, cors);
+    if (request.method === "GET" && url.pathname === "/health") return respond({ ok: true, service: "yuzi-api" }, 200, cors);
     if (!cors.get("access-control-allow-origin")) return respond({ error: { code: "ORIGIN_NOT_ALLOWED", message: "Origin is not allowed." } }, 403, cors);
 
     try {
@@ -35,7 +35,7 @@ export default {
       });
       return withCors(response, cors);
     } catch (error) {
-      console.error(JSON.stringify({ event: "yuzhi.request.failed", path: url.pathname, message: error instanceof Error ? error.message : "unknown" }));
+      console.error(JSON.stringify({ event: "yuzi.request.failed", path: url.pathname, message: error instanceof Error ? error.message : "unknown" }));
       return respond({ error: { code: "SERVICE_UNAVAILABLE", message: "手稿暂时无法打开。" } }, 503, cors);
     }
   },

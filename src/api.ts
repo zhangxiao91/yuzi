@@ -1,7 +1,7 @@
 import type { CutInput, GameState, SessionEnvelope, TurnInput } from "../shared/types";
 
-const API_BASE = (import.meta.env.VITE_YUZHI_API_BASE_URL || "https://yuzhi-api.zx-dx.xyz").replace(/\/$/, "");
-const SESSION_KEY = "yuzhi:active-session:v1";
+const API_BASE = (import.meta.env.VITE_YUZI_API_BASE_URL || "https://yuzi-api.zx-dx.xyz").replace(/\/$/, "");
+const SESSION_KEY = "yuzi:active-session:v1";
 
 interface Credentials { sessionId: string; sessionToken: string }
 

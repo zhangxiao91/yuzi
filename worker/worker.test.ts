@@ -53,7 +53,7 @@ describe("worker boundary", () => {
   });
 
   it("validates production Turnstile action and hostname", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ success: true, action: "start-yuzhi", hostname: "zx-dx.xyz" })));
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ success: true, action: "start-yuzi", hostname: "zx-dx.xyz" })));
     await expect(verifyTurnstile(new Request("https://api.test"), env({ ENVIRONMENT: "production" }), "valid")).resolves.toBe(true);
     vi.stubGlobal("fetch", vi.fn(async () => Response.json({ success: true, action: "wrong", hostname: "zx-dx.xyz" })));
     await expect(verifyTurnstile(new Request("https://api.test"), env({ ENVIRONMENT: "production" }), "valid")).resolves.toBe(false);

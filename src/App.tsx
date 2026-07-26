@@ -9,7 +9,7 @@ import { Turnstile } from "./Turnstile";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const RESULT_KEY = "yuzhi:residuals:v1";
+const RESULT_KEY = "yuzi:residuals:v1";
 const punctuationOptions: Array<{ value: Punctuation; label: string; title: string }> = [
   { value: "。", label: "。", title: "将句子尝试固定为事实" },
   { value: "？", label: "？", title: "提出疑问，让世界暴露另一种可能" },
@@ -185,7 +185,7 @@ function Opening({ token, busy, error, onToken, onError, onStart }: { token: str
         <button className="primary-command" type="button" disabled={!token || busy} onClick={onStart}>{busy ? <LoaderCircle className="spin" /> : <PenLine />} 开始落笔</button>
         {error && <p className="error-message" role="alert">{error}</p>}
       </div>
-      <figure className="opening-image"><img src="/lab/yuzhi/game/assets/rain-station.webp" alt="黎明前被云层包围的山谷" /><figcaption>天亮以后，故事会合上。</figcaption></figure>
+      <figure className="opening-image"><img src="/lab/yuzi/game/assets/rain-station.webp" alt="黎明前被云层包围的山谷" /><figcaption>天亮以后，故事会合上。</figcaption></figure>
     </section>
     <div className="opening-next"><ArrowDown size={18} /><span>手稿会记住每一个缺口</span></div>
   </main>;

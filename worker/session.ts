@@ -84,7 +84,7 @@ function gameError(error: unknown): Response {
   const status = code === "VERSION_CONFLICT" ? 409
     : code.startsWith("AI_GATEWAY_") || code.includes("MODEL") || code.includes("NARRATIVE") || code.includes("CANDIDATE") ? 502
       : 400;
-  console.error(JSON.stringify({ event: "yuzhi.session.rejected", code }));
+  console.error(JSON.stringify({ event: "yuzi.session.rejected", code }));
   return problem(code, status);
 }
 

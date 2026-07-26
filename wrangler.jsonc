@@ -1,10 +1,10 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "yuzhi-api",
+  "name": "yuzi-api",
   "main": "worker/index.ts",
   "compatibility_date": "2026-07-26",
   "compatibility_flags": ["nodejs_compat"],
-  "routes": [{ "pattern": "yuzhi-api.zx-dx.xyz", "custom_domain": true }],
+  "routes": [{ "pattern": "yuzi-api.zx-dx.xyz", "custom_domain": true }],
   "vars": {
     "ENVIRONMENT": "production",
     "ALLOWED_ORIGINS": "https://zx-dx.xyz,https://zxlab.pages.dev,https://*.zxlab.pages.dev,http://localhost:4321,http://127.0.0.1:4174",

@@ -22,7 +22,7 @@ function output(narrative = "她推开生锈的旧门，雨水沿着站台流进
   return { narrative, candidates };
 }
 
-describe("Yuzhi game domain", () => {
+describe("Yuzi game domain", () => {
   it("composes whole semantic fragments in player order with punctuation semantics", () => {
     const state = game();
     const question = composeTurn(state, { version: 1, fragmentIds: ids(state, "她", "回到", "邮局"), punctuation: "？" });

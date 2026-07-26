@@ -14,7 +14,7 @@ npm run dev
 npm run dev:worker
 ```
 
-前端默认运行在 `http://127.0.0.1:4174/lab/yuzhi/game/`，Worker 默认运行在 `http://127.0.0.1:8792`。开发环境可使用 Cloudflare Turnstile 测试令牌。
+前端默认运行在 `http://127.0.0.1:4174/lab/yuzi/game/`，Worker 默认运行在 `http://127.0.0.1:8792`。开发环境可使用 Cloudflare Turnstile 测试令牌。
 
 ## Commands
 
@@ -30,7 +30,7 @@ npm run dev:worker
 - `worker/`: Cloudflare Worker、Durable Object、Turnstile、限流与 AI Gateway 客户端。
 - `docs/game-design.md`: 完整玩法规则、状态不变量与 MVP 边界。
 
-生产环境只在 Worker secrets 中设置 `TURNSTILE_SECRET_KEY` 和 `ZXLAB_AI_GATEWAY_TOKEN`。浏览器永远不接触模型凭据。ZXLab 以 git submodule 固定本仓库版本，并把静态构建嵌入同源 `/lab/yuzhi` 页面。
+生产环境只在 Worker secrets 中设置 `TURNSTILE_SECRET_KEY` 和 `ZXLAB_AI_GATEWAY_TOKEN`。浏览器永远不接触模型凭据。ZXLab 以 git submodule 固定本仓库版本，并把静态构建嵌入同源 `/lab/yuzi` 页面。
 
 ## License
 

@@ -54,10 +54,10 @@ async function callGateway(
       authorization: `Bearer ${env.ZXLAB_AI_GATEWAY_TOKEN}`,
     },
     body: JSON.stringify({
-      task: "yuzhi-turn",
+      task: "yuzi-turn",
       messages: [{ role: "system", content: system }, { role: "user", content: user }],
       responseFormat: { type: "json" },
-      context: { source: "yuzhi", operation: repair ? "repair-turn" : "generate-turn", metadata: { turn: state.turn + 1 } },
+      context: { source: "yuzi", operation: repair ? "repair-turn" : "generate-turn", metadata: { turn: state.turn + 1 } },
     }),
   });
   const payload = await response.json().catch(() => ({})) as GatewayResponse;

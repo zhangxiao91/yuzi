@@ -18,5 +18,5 @@ export async function verifyTurnstile(request: Request, env: Env, token: unknown
   if (!response.ok) return false;
   const result = await response.json<TurnstileResponse>();
   const hostnames = env.TURNSTILE_EXPECTED_HOSTNAMES.split(",").map((item) => item.trim()).filter(Boolean);
-  return result.success === true && result.action === "start-yuzhi" && Boolean(result.hostname && hostnames.includes(result.hostname));
+  return result.success === true && result.action === "start-yuzi" && Boolean(result.hostname && hostnames.includes(result.hostname));
 }
