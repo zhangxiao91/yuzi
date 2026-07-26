@@ -81,7 +81,7 @@ describe("Yuzhi game domain", () => {
     expect(composition.nextHand.some((item) => item.text === "邮局")).toBe(false);
   });
 
-  it("applies place, memory, and letter erasure to structured world state", () => {
+  it("applies phrase-specific place, memory, and canonical letter erasure", () => {
     const state = game();
     state.phase = "cut";
     state.cutBudget = 12;
@@ -94,6 +94,24 @@ describe("Yuzhi game domain", () => {
     const next = cutFragments(state, { version: 1, candidateIds: ["place", "memory"] });
     expect(next.world.locationKnown).toBe(false);
     expect(next.world.remembersSender).toBe(false);
+  });
+
+  it("does not erase the physical letter through a different complete phrase", () => {
+    const state = game();
+    state.phase = "cut";
+    state.cutBudget = 6;
+    state.hand = [];
+    state.world = { ...state.world, hasLetter: true, readLetter: true };
+    state.candidates = [{ id: "synonym", text: "旧信", role: "object", start: 0, end: 2 }];
+    const synonym = cutFragments(state, { version: 1, candidateIds: ["synonym"] });
+    expect(synonym.world.hasLetter).toBe(true);
+    expect(synonym.world.readLetter).toBe(true);
+
+    state.candidates = [{ id: "canonical", text: "那封信", role: "object", start: 0, end: 3 }];
+    const canonical = cutFragments(state, { version: 1, candidateIds: ["canonical"] });
+    expect(canonical.world.letterExists).toBe(false);
+    expect(canonical.world.hasLetter).toBe(false);
+    expect(canonical.world.readLetter).toBe(false);
   });
 
   it("stops after five generated turns and resolves deterministic endings", () => {

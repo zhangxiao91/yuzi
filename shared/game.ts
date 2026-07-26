@@ -93,6 +93,7 @@ export function composeTurn(state: GameState, input: TurnInput): {
   const hasLetterObject = fragments.some((item) => item.role === "object" && item.text.includes("信"));
   const world = { ...state.world };
 
+  if (asserted && hasLetterObject) world.letterExists = true;
   if (asserted && hasRole("place") && progressActions.locate.test(`${actionText}${body}`)) world.locationKnown = true;
   if (asserted && state.world.locationKnown && hasLetterObject && progressActions.acquire.test(actionText)) world.hasLetter = true;
   if (asserted && state.world.hasLetter && hasLetterObject && progressActions.read.test(actionText)) world.readLetter = true;
@@ -222,7 +223,8 @@ function applyErasureEffects(world: WorldState, candidates: CandidateFragment[])
   for (const candidate of candidates) {
     if (candidate.role === "place") next.locationKnown = false;
     if (candidate.role === "memory") next.remembersSender = false;
-    if (candidate.role === "object" && candidate.text.includes("信")) {
+    if (candidate.role === "object" && candidate.text === "那封信") {
+      next.letterExists = false;
       next.hasLetter = false;
       next.readLetter = false;
       next.understoodLetter = false;
