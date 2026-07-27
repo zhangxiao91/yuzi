@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { ArrowDown, ArrowLeft, ArrowRight, BookOpen, LoaderCircle, PenLine, RotateCcw, Scissors, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, BookOpen, CircleHelp, LoaderCircle, PenLine, RotateCcw, Scissors, Target, X } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { CandidateFragment, Fragment, GameState, Punctuation } from "../shared/types";
@@ -10,6 +10,7 @@ import { Turnstile } from "./Turnstile";
 gsap.registerPlugin(ScrollTrigger);
 
 const RESULT_KEY = "yuzi:residuals:v1";
+const GUIDE_KEY = "yuzi:guide-dismissed:v1";
 const punctuationOptions: Array<{ value: Punctuation; label: string; title: string }> = [
   { value: "。", label: "。", title: "将句子尝试固定为事实" },
   { value: "？", label: "？", title: "提出疑问，让世界暴露另一种可能" },
@@ -23,6 +24,10 @@ export function App() {
   const [cuts, setCuts] = useState<string[]>([]);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [challengeVersion, setChallengeVersion] = useState(0);
+  const [showGuide, setShowGuide] = useState(() => {
+    try { return localStorage.getItem(GUIDE_KEY) !== "1"; }
+    catch { return true; }
+  });
   const [busy, setBusy] = useState(false);
   const [restoring, setRestoring] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,6 +130,11 @@ export function App() {
     clearSession(); setGame(null); setSelected([]); setCuts([]); setTurnstileToken(""); setError(null);
   };
 
+  const dismissGuide = () => {
+    try { localStorage.setItem(GUIDE_KEY, "1"); } catch {}
+    setShowGuide(false);
+  };
+
   const toggleSelected = (id: string) => setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : current.length < 5 ? [...current, id] : current);
   const toggleCut = (candidate: CandidateFragment) => setCuts((current) => {
     if (current.includes(candidate.id)) return current.filter((item) => item !== candidate.id);
@@ -138,20 +148,28 @@ export function App() {
   });
 
   if (restoring) return <LoadingScreen />;
-  if (!game) return <Opening challengeVersion={challengeVersion} token={turnstileToken} busy={busy} error={error} onToken={handleChallengeToken} onError={handleChallengeInvalid} onStart={start} />;
+  if (!game) return <>
+    <Opening challengeVersion={challengeVersion} token={turnstileToken} busy={busy} error={error} onToken={handleChallengeToken} onError={handleChallengeInvalid} onStart={start} onGuide={() => setShowGuide(true)} />
+    {showGuide && <GameGuide onClose={dismissGuide} />}
+  </>;
 
   return (
     <main className="game-shell" ref={manuscriptRef}>
       <header className="game-nav">
         <a href="/lab/" target="_top"><ArrowLeft size={16} /> zxlab / Lab</a>
         <div><span className="live-dot" /> 第 {Math.min(game.turn + 1, game.maxTurns)} / {game.maxTurns} 轮</div>
-        <button type="button" className="icon-button" onClick={reset} title="重新开始" aria-label="重新开始"><RotateCcw size={17} /></button>
+        <div className="nav-actions">
+          <button type="button" className="icon-button" onClick={() => setShowGuide(true)} title="玩法说明" aria-label="打开玩法说明"><CircleHelp size={17} /></button>
+          <button type="button" className="icon-button" onClick={reset} title="重新开始" aria-label="重新开始"><RotateCcw size={17} /></button>
+        </div>
       </header>
 
       <section className="game-title-band">
         <h1>余<span className="title-inline-image" aria-hidden="true" />字</h1>
         <p>{game.goal}</p>
       </section>
+
+      {showGuide && <GameGuide onClose={dismissGuide} />}
 
       <section className="game-grid">
         <article className="manuscript-panel" aria-label="正在消失的手稿">
@@ -168,6 +186,15 @@ export function App() {
 
         <aside className="objective-panel">
           <div className="panel-heading"><span>事实仍在变化</span></div>
+          <div className="objective-route" aria-label="胜利所需的事实顺序">
+            <span className={game.world.locationKnown ? "is-complete" : ""}>地点</span>
+            <i aria-hidden="true">→</i>
+            <span className={game.world.hasLetter ? "is-complete" : ""}>信件</span>
+            <i aria-hidden="true">→</i>
+            <span className={game.world.readLetter ? "is-complete" : ""}>阅读</span>
+            <i aria-hidden="true">→</i>
+            <span className={game.world.understoodLetter ? "is-complete" : ""}>理解</span>
+          </div>
           <div className="fact-accordion">
             <Fact label="地点" active={game.world.locationKnown} copy={game.world.locationKnown ? "邮局位置明确" : "位置仍不确定"} />
             <Fact label="信件" active={game.world.hasLetter} copy={game.world.hasLetter ? "她已经拿到信" : "信仍未到手"} />
@@ -189,9 +216,13 @@ export function App() {
   );
 }
 
-function Opening({ challengeVersion, token, busy, error, onToken, onError, onStart }: { challengeVersion: number; token: string; busy: boolean; error: string | null; onToken: (token: string) => void; onError: () => void; onStart: () => void }) {
+function Opening({ challengeVersion, token, busy, error, onToken, onError, onStart, onGuide }: { challengeVersion: number; token: string; busy: boolean; error: string | null; onToken: (token: string) => void; onError: () => void; onStart: () => void; onGuide: () => void }) {
   return <main className="opening-shell">
-    <nav className="opening-nav"><a href="/lab/" target="_top"><ArrowLeft size={16} /> zxlab / Lab</a><span>生成式文字构筑</span></nav>
+    <nav className="opening-nav">
+      <a href="/lab/" target="_top"><ArrowLeft size={16} /> zxlab / Lab</a>
+      <span>生成式文字构筑</span>
+      <button type="button" className="icon-button" onClick={onGuide} title="玩法说明" aria-label="打开玩法说明"><CircleHelp size={17} /></button>
+    </nav>
     <section className="opening-scene">
       <div className="opening-copy">
         <h1>余<span className="title-inline-image" aria-hidden="true" />字</h1>
@@ -211,6 +242,7 @@ function ComposePanel(props: { game: GameState; selected: string[]; selectedFrag
   const sentence = props.selectedFragments.map((item) => item.text).join("");
   return <div className="compose-workspace">
     <div className="panel-heading"><PenLine size={17} /><span>构造下一句话</span></div>
+    <p className="phase-hint"><strong>这一轮</strong> 选择 2–5 个意群，按顺序组成一句话。写下后，世界会回应你。</p>
     <div className="sentence-line" aria-live="polite">{sentence || <span>选择并排序意群</span>}{sentence && (props.punctuation === "“”" ? "”" : props.punctuation)}</div>
     <div className="selected-strip">
       {props.selectedFragments.map((fragment, index) => <div className="selected-fragment" key={fragment.id}>
@@ -222,6 +254,7 @@ function ComposePanel(props: { game: GameState; selected: string[]; selectedFrag
     </div>
     <div className="fragment-pool" aria-label="可用意群">{props.game.hand.map((fragment, index) => <button className="fragment-button" type="button" aria-pressed={props.selected.includes(fragment.id)} onClick={() => props.onToggle(fragment.id)} key={fragment.id}><small>{index + 1}</small>{fragment.text}</button>)}</div>
     <div className="punctuation-control">{punctuationOptions.map((option) => <button type="button" title={option.title} aria-pressed={props.punctuation === option.value} onClick={() => props.onPunctuation(option.value)} key={option.value}>{option.label}</button>)}</div>
+    <p className="punctuation-legend"><strong>。</strong>建立事实 <span>·</span> <strong>？</strong>保留悬念 <span>·</span> <strong>“ ”</strong>只形成对白</p>
     <button className="primary-command" type="button" disabled={props.selected.length < 2 || props.busy} onClick={props.onSubmit}>{props.busy ? <LoaderCircle className="spin" /> : <PenLine />} 写入手稿</button>
     {props.error && <p className="error-message" role="alert">{props.error}</p>}
   </div>;
@@ -230,6 +263,7 @@ function ComposePanel(props: { game: GameState; selected: string[]; selectedFrag
 function CutPanel(props: { game: GameState; cuts: string[]; cutLength: number; busy: boolean; error: string | null; onToggle: (candidate: CandidateFragment) => void; onSubmit: () => void }) {
   return <div className="cut-workspace">
     <div className="panel-heading"><Scissors size={17} /><span>从全篇剪下意义</span></div>
+    <p className="phase-hint"><strong>带走什么</strong> 选择 1–2 个意群加入下一轮字池，总字数不能超过本轮预算。</p>
     <p className="cut-warning">同名意群会从所有段落消失，只留下一个可移动的字块。</p>
     <div className="cut-budget"><span>可剪 {props.game.cutBudget} 字</span><strong>{props.cutLength} / {props.game.cutBudget}</strong></div>
     <div className="candidate-pool">{props.game.candidates.map((candidate, index) => <button className="fragment-button candidate-button" type="button" aria-pressed={props.cuts.includes(candidate.id)} onClick={() => props.onToggle(candidate)} key={candidate.id}><small>{index + 1}</small><span>{candidate.text}</span><em>{roleLabel(candidate.role)}</em></button>)}</div>
@@ -240,6 +274,38 @@ function CutPanel(props: { game: GameState; cuts: string[]; cutLength: number; b
 
 function Fact({ label, active, copy }: { label: string; active: boolean; copy: string }) {
   return <details open={active} className={active ? "is-active" : ""}><summary><span>{label}</span><i /></summary><p>{copy}</p></details>;
+}
+
+function GameGuide({ onClose }: { onClose: () => void }) {
+  return <div className="guide-backdrop" role="presentation">
+    <section className="guide-dialog" role="dialog" aria-modal="true" aria-labelledby="guide-title">
+      <button type="button" className="guide-close" onClick={onClose} title="关闭玩法说明" aria-label="关闭玩法说明"><X size={18} /></button>
+      <div className="guide-heading">
+        <span>五轮之内</span>
+        <h2 id="guide-title">把缺失的意义，搬到正确的句子里</h2>
+        <p>每轮都由“写一句”和“剪一块”组成。文字不会复制：你得到一个意群，手稿就会失去它。</p>
+      </div>
+      <div className="guide-steps">
+        <article>
+          <PenLine aria-hidden="true" />
+          <strong>先写</strong>
+          <p>从字池选 2–5 个意群并排序。句号尝试建立事实；问号和对白不会推进事实。</p>
+        </article>
+        <article>
+          <Scissors aria-hidden="true" />
+          <strong>再剪</strong>
+          <p>从世界回应里剪下 1–2 个完整意群，带到下一轮。同名意群会从整篇手稿消失。</p>
+        </article>
+        <article>
+          <Target aria-hidden="true" />
+          <strong>让结局成立</strong>
+          <p>依次建立地点、取得信件、完成阅读并理解内容。第五轮要用句号写下世界能够承认的事实。</p>
+        </article>
+      </div>
+      <div className="guide-caution"><strong>谨慎剪取</strong><span>剪掉地点、记忆或“那封信”，已经成立的事实也可能消失。</span></div>
+      <button className="primary-command guide-command" type="button" onClick={onClose}><PenLine size={17} /> 开始改写</button>
+    </section>
+  </div>;
 }
 
 function Result({ game, onReset }: { game: GameState; onReset: () => void }) {
