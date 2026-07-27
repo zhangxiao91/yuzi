@@ -71,7 +71,8 @@ describe("worker boundary", () => {
 
   it("buffers a bounded JSON body before forwarding to the Durable Object", async () => {
     let forwarded = "";
-    const stub = { fetch: vi.fn(async (request: Request) => {
+    const stub = { fetch: vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = new Request(input, init);
       forwarded = await request.text();
       return Response.json({ game: { id: "id" } });
     }) };
