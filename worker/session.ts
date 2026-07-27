@@ -97,7 +97,9 @@ function problem(code: string, status: number): Response {
 }
 
 function safeMessage(code: string): string {
-  if (code.startsWith("AI_GATEWAY_") || code.includes("MODEL")) return "这一轮没有写成，请重试。";
+  if (code.startsWith("AI_GATEWAY_") || code.includes("MODEL") || code.includes("NARRATIVE") || code.includes("CANDIDATE") || code === "FORBIDDEN_FRAGMENT_REAPPEARED") {
+    return "这一轮没有写成，请重试。";
+  }
   if (code === "VERSION_CONFLICT") return "手稿已在其他位置更新，请刷新后继续。";
   if (code === "SESSION_EXPIRED") return "这份手稿已经合上，请开始新的一局。";
   if (code === "TURN_NOT_ALLOWED") return "当前不是构句阶段，请先完成剪取。";
