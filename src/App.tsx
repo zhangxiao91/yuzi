@@ -22,6 +22,7 @@ export function App() {
   const [punctuation, setPunctuation] = useState<Punctuation>("。");
   const [cuts, setCuts] = useState<string[]>([]);
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [challengeVersion, setChallengeVersion] = useState(0);
   const [busy, setBusy] = useState(false);
   const [restoring, setRestoring] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,13 +77,28 @@ export function App() {
 
   const start = useCallback(async () => {
     if (!turnstileToken) return;
+    const token = turnstileToken;
+    setTurnstileToken("");
     setBusy(true); setError(null);
     try {
-      const result = await createSession(turnstileToken);
+      const result = await createSession(token);
       setGame(result.game); setSelected([]); setCuts([]);
-    } catch (cause) { setError(friendly(cause)); }
+    } catch (cause) {
+      setChallengeVersion((current) => current + 1);
+      setError(friendly(cause));
+    }
     finally { setBusy(false); }
   }, [turnstileToken]);
+
+  const handleChallengeToken = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setError(null);
+  }, []);
+
+  const handleChallengeInvalid = useCallback(() => {
+    setTurnstileToken("");
+    setError("安全验证暂时不可用，请重试。");
+  }, []);
 
   const writeTurn = async () => {
     if (!game || selected.length < 2) return;
@@ -122,7 +138,7 @@ export function App() {
   });
 
   if (restoring) return <LoadingScreen />;
-  if (!game) return <Opening token={turnstileToken} busy={busy} error={error} onToken={setTurnstileToken} onError={() => setError("安全验证暂时不可用。") } onStart={start} />;
+  if (!game) return <Opening challengeVersion={challengeVersion} token={turnstileToken} busy={busy} error={error} onToken={handleChallengeToken} onError={handleChallengeInvalid} onStart={start} />;
 
   return (
     <main className="game-shell" ref={manuscriptRef}>
@@ -173,7 +189,7 @@ export function App() {
   );
 }
 
-function Opening({ token, busy, error, onToken, onError, onStart }: { token: string; busy: boolean; error: string | null; onToken: (token: string) => void; onError: () => void; onStart: () => void }) {
+function Opening({ challengeVersion, token, busy, error, onToken, onError, onStart }: { challengeVersion: number; token: string; busy: boolean; error: string | null; onToken: (token: string) => void; onError: () => void; onStart: () => void }) {
   return <main className="opening-shell">
     <nav className="opening-nav"><a href="/lab/" target="_top"><ArrowLeft size={16} /> zxlab / Lab</a><span>生成式文字构筑</span></nav>
     <section className="opening-scene">
@@ -181,7 +197,7 @@ function Opening({ token, busy, error, onToken, onError, onStart }: { token: str
         <h1>余<span className="title-inline-image" aria-hidden="true" />字</h1>
         <p className="opening-premise">从已经发生的故事里剪下意义，把它带到下一句话。</p>
         <div className="opening-goal"><span>五轮目标</span><strong>天亮前，让她读懂那封未寄出的信。</strong></div>
-        <Turnstile onToken={onToken} onError={onError} />
+        <Turnstile key={challengeVersion} onToken={onToken} onError={onError} />
         <button className="primary-command" type="button" disabled={!token || busy} onClick={onStart}>{busy ? <LoaderCircle className="spin" /> : <PenLine />} 开始落笔</button>
         {error && <p className="error-message" role="alert">{error}</p>}
       </div>

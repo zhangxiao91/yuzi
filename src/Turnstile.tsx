@@ -48,6 +48,7 @@ export function Turnstile({ onToken, onError }: { onToken: (token: string) => vo
         callback: onToken,
         "error-callback": onError,
         "expired-callback": onError,
+        "timeout-callback": onError,
       });
     }).catch(onError);
     return () => {
