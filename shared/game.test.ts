@@ -23,6 +23,22 @@ function output(narrative = "她推开生锈的旧门，雨水沿着站台流进
 }
 
 describe("Yuzi game domain", () => {
+  it("assigns one of two stable, parallel opening manuscripts per session", () => {
+    const first = createInitialGame("session-a", Date.now());
+    const restored = createInitialGame("session-a", Date.now());
+    const parallel = createInitialGame("session-b", Date.now());
+
+    expect(first.manuscript.map((item) => item.text)).toEqual(restored.manuscript.map((item) => item.text));
+    expect(first.manuscript.map((item) => item.text)).not.toEqual(parallel.manuscript.map((item) => item.text));
+    for (const game of [first, parallel]) {
+      const opening = game.manuscript.map((item) => item.text).join("");
+      expect(opening).toContain("信");
+      expect(opening).toContain("邮局");
+      expect(opening).toMatch(/天亮|第一班渡船/);
+      expect(opening).toContain("离开这座城");
+    }
+  });
+
   it("composes whole semantic fragments in player order with punctuation semantics", () => {
     const state = game();
     const question = composeTurn(state, { version: 1, fragmentIds: ids(state, "她", "回到", "邮局"), punctuation: "？" });

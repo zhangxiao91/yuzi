@@ -15,6 +15,17 @@ export const MAX_TURNS = 5;
 export const MAX_HAND_GLYPHS = 24;
 export const INITIAL_GOAL = "在天亮以前，让她亲手读到并理解那封信。";
 
+const OPENING_MANUSCRIPTS = [
+  [
+    "雨水模糊了末班车站的灯。她在这里等一封多年没有寄出的信。",
+    "天亮以后她会离开这座城，邮局的旧窗口也将永远关闭。",
+  ],
+  [
+    "潮气爬上旧城区的玻璃。她攥着一张褪色的取信单，却不知道那封信被留在哪一间邮局。",
+    "第一班渡船靠岸前，无人认领的信件都会被送去销毁，她也将离开这座城。",
+  ],
+] as const;
+
 const roles = new Set<FragmentRole>(["subject", "time", "action", "object", "place", "memory", "connector"]);
 const progressActions = {
   locate: /回到|抵达|来到|找到.*地方|确认.*位置/,
@@ -28,6 +39,7 @@ export function glyphLength(text: string): number {
 }
 
 export function createInitialGame(id: string, expiresAt: number): GameState {
+  const opening = openingForSession(id);
   return {
     id,
     version: 1,
@@ -46,10 +58,7 @@ export function createInitialGame(id: string, expiresAt: number): GameState {
       fragment("仍然记得", "memory"),
     ],
     forbidden: [],
-    manuscript: [
-      { id: "opening-1", turn: 0, text: "雨水模糊了末班车站的灯。她在这里等一封多年没有寄出的信。" },
-      { id: "opening-2", turn: 0, text: "天亮以后她会离开这座城，邮局的旧窗口也将永远关闭。" },
-    ],
+    manuscript: opening.map((text, index) => ({ id: `opening-${index + 1}`, turn: 0, text })),
     candidates: [],
     cutBudget: 0,
     world: {
@@ -63,6 +72,11 @@ export function createInitialGame(id: string, expiresAt: number): GameState {
     },
     expiresAt,
   };
+}
+
+function openingForSession(id: string): (typeof OPENING_MANUSCRIPTS)[number] {
+  const bucket = [...id].reduce((sum, character) => sum + (character.codePointAt(0) ?? 0), 0);
+  return OPENING_MANUSCRIPTS[bucket % OPENING_MANUSCRIPTS.length];
 }
 
 export function composeTurn(state: GameState, input: TurnInput): {
