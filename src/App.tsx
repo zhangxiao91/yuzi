@@ -285,23 +285,20 @@ function GameGuide({ onClose }: { onClose: () => void }) {
         <h2 id="guide-title">把缺失的意义，搬到正确的句子里</h2>
         <p>每轮都由“写一句”和“剪一块”组成。文字不会复制：你得到一个意群，手稿就会失去它。</p>
       </div>
-      <div className="guide-steps">
-        <article>
-          <PenLine aria-hidden="true" />
-          <strong>先写</strong>
-          <p>从字池选 2–5 个意群并排序。句号尝试建立事实；问号和对白不会推进事实。</p>
-        </article>
-        <article>
-          <Scissors aria-hidden="true" />
-          <strong>再剪</strong>
-          <p>从世界回应里剪下 1–2 个完整意群，带到下一轮。同名意群会从整篇手稿消失。</p>
-        </article>
-        <article>
-          <Target aria-hidden="true" />
-          <strong>让结局成立</strong>
-          <p>依次建立地点、取得信件、完成阅读并理解内容。第五轮要用句号写下世界能够承认的事实。</p>
-        </article>
-      </div>
+      <ol className="guide-steps">
+        <li>
+          <span className="guide-stage">01</span>
+          <div><strong><PenLine aria-hidden="true" />先写</strong><p>从字池选 2–5 个意群并排序。句号尝试建立事实；问号和对白不会推进事实。</p></div>
+        </li>
+        <li>
+          <span className="guide-stage">02</span>
+          <div><strong><Scissors aria-hidden="true" />再剪</strong><p>从世界回应里剪下 1–2 个完整意群，带到下一轮。同名意群会从整篇手稿消失。</p></div>
+        </li>
+        <li>
+          <span className="guide-stage">03</span>
+          <div><strong><Target aria-hidden="true" />让结局成立</strong><p>依次建立地点、取得信件、完成阅读并理解内容。第五轮要用句号写下世界能够承认的事实。</p></div>
+        </li>
+      </ol>
       <div className="guide-caution"><strong>谨慎剪取</strong><span>剪掉地点、记忆或“那封信”，已经成立的事实也可能消失。</span></div>
       <button className="primary-command guide-command" type="button" onClick={onClose}><PenLine size={17} /> 开始改写</button>
     </section>

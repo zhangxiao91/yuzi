@@ -1,3 +1,7 @@
+/* Hallmark · component: Yuzi guide · macrostructure: Narrative Workflow
+ * states: open · close · focus · reduced-motion
+ * pre-emit critique: P5 H5 E4 S5 R5 V5
+ */
 @font-face {
   font-family: "Cabinet Grotesk";
   src: url("/lab/yuzi/game/fonts/CabinetGrotesk-Variable.ttf") format("truetype");
@@ -129,12 +133,12 @@ a { color: inherit; text-decoration: none; }
 .guide-heading > span { color: var(--red); font-size: 11px; }
 .guide-heading h2 { max-width: 680px; margin: 12px 0 16px; font-family: ui-serif, "Songti SC", Georgia, serif; font-size: clamp(28px, 4vw, 46px); font-weight: 520; line-height: 1.18; }
 .guide-heading p { max-width: 590px; margin: 0; color: #666258; line-height: 1.65; }
-.guide-steps { display: grid; grid-template-columns: repeat(3, 1fr); margin: 34px 0 24px; border-top: 1px solid #aaa397; border-bottom: 1px solid #aaa397; }
-.guide-steps article { min-width: 0; padding: 26px 24px 28px 0; }
-.guide-steps article + article { padding-left: 24px; border-left: 1px solid #aaa397; }
-.guide-steps svg { width: 20px; height: 20px; margin-bottom: 34px; color: var(--red); }
-.guide-steps strong { display: block; margin-bottom: 10px; }
-.guide-steps p { margin: 0; color: #68645a; font-size: 12px; line-height: 1.65; }
+.guide-steps { display: grid; margin: 34px 0 24px; padding: 0; border-top: 1px solid #aaa397; list-style: none; }
+.guide-steps li { display: grid; min-width: 0; padding: 22px 0; border-bottom: 1px solid #aaa397; grid-template-columns: 54px minmax(0, 1fr); gap: 18px; }
+.guide-stage { color: var(--red); font-size: 11px; font-variant-numeric: tabular-nums; letter-spacing: .1em; }
+.guide-steps strong { display: flex; margin-bottom: 8px; align-items: center; gap: 10px; }
+.guide-steps svg { width: 18px; height: 18px; color: var(--red); }
+.guide-steps p { max-width: 610px; margin: 0; color: #68645a; font-size: 12px; line-height: 1.65; }
 .guide-caution { display: flex; gap: 18px; align-items: baseline; margin-bottom: 26px; color: #68645a; font-size: 12px; line-height: 1.55; }
 .guide-caution strong { flex: none; color: var(--red); }
 .guide-command { background: var(--ink); color: white; }
@@ -167,10 +171,8 @@ a { color: inherit; text-decoration: none; }
   .guide-backdrop { align-items: end; padding: 0; }
   .guide-dialog { width: 100%; max-height: 92vh; padding: 34px 20px 28px; border-right: 0; border-bottom: 0; border-left: 0; }
   .guide-heading h2 { padding-right: 36px; font-size: 30px; }
-  .guide-steps { grid-template-columns: 1fr; margin-top: 26px; }
-  .guide-steps article { display: grid; grid-template-columns: 28px 1fr; column-gap: 12px; padding: 18px 0; }
-  .guide-steps article + article { padding-left: 0; border-top: 1px solid #c8c2b5; border-left: 0; }
-  .guide-steps svg { grid-row: span 2; margin: 2px 0 0; }
+  .guide-steps { margin-top: 26px; }
+  .guide-steps li { grid-template-columns: 40px minmax(0, 1fr); gap: 10px; padding: 18px 0; }
   .guide-steps strong { margin-bottom: 5px; }
   .guide-caution { align-items: flex-start; flex-direction: column; gap: 5px; }
 }
